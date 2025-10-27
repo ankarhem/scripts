@@ -76,15 +76,12 @@
       packages = forEachSupportedSystem (
         { pkgs, naerskLib, ... }:
         rec {
-          #          hitster = naerskLib.buildPackage {
-          #            pname = "hitster";
-          #            src = ./.;
-          #            buildInputs = with pkgs; [
-          #              openssl
-          #              sqlx-cli
-          #            ];
-          #            nativeBuildInputs = with pkgs; [ pkg-config ];
-          #          };
+          yt-sub = naerskLib.buildPackage {
+            pname = "yt-sub";
+            src = ./.;
+            buildInputs = with pkgs; [ ];
+            nativeBuildInputs = with pkgs; [ ];
+          };
         }
       );
 

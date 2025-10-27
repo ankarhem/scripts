@@ -6,7 +6,7 @@ use yt_transcript_rs::YouTubeTranscriptApi;
 mod youtube_id;
 
 #[derive(Parser, Debug)]
-#[command(version, about)]
+#[command(name = "yt-sub", version, about)]
 struct Args {
     /// The URL of the YouTube video
     url: String,
