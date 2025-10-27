@@ -1,7 +1,7 @@
 use std::str::FromStr;
 use winnow::Parser;
 use winnow::Result;
-use winnow::combinator::{alt, opt, preceded};
+use winnow::combinator::{alt, opt};
 use winnow::token::{rest, take_while};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -42,7 +42,7 @@ fn parse_youtube_id(input: &mut &str) -> Result<YoutubeId> {
 }
 
 fn parse_raw_id(input: &mut &str) -> winnow::Result<YoutubeId> {
-    take_while(1.., |c: char| c.is_alphanumeric())
+    take_while(1.., |c: char| c.is_alphanumeric() || c == '-' || c == '_')
         .map(|id: &str| YoutubeId(id.to_string()))
         .parse_next(input)
 }
