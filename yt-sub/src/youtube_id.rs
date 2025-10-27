@@ -1,8 +1,8 @@
 use std::str::FromStr;
-use winnow::ModalResult;
 use winnow::Parser;
-use winnow::combinator::alt;
-use winnow::token::{rest, take_until};
+use winnow::Result;
+use winnow::combinator::{alt, opt, preceded};
+use winnow::token::{rest, take_while};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct YoutubeId(String);
@@ -13,7 +13,7 @@ impl YoutubeId {
     }
 
     pub fn parse(input: &str) -> anyhow::Result<YoutubeId> {
-        let id = parse_video_id
+        let id = parse_youtube_id
             .parse(input)
             .map_err(|e| anyhow::anyhow!("Failed to parse YouTube ID: {}", e))?;
         Ok(id)
@@ -28,21 +28,44 @@ impl FromStr for YoutubeId {
     }
 }
 
-fn parse_youtube_id(input: &mut &str) -> ModalResult<YoutubeId> {
-    let _ = alt(("http://", "https://")).parse_next(input)?;
+fn parse_youtube_id(input: &mut &str) -> Result<YoutubeId> {
+    let _protocol = alt(("https://", "http://")).parse_next(input)?;
+    let _www = opt("www.").parse_next(input)?;
+    let _url =
+        alt(("youtube.com/watch?v=", "youtube.com/embed/", "youtu.be/")).parse_next(input)?;
 
-    let _ = alt(("youtube.com/watch?v=", "youtube.com/embed/", "youtu.be/")).parse_next(input)?;
-
-    let id = parse_video_id(input)?;
-
+    let id = parse_raw_id(input)?;
     // Consume any trailing query parameters
     let _ = rest.parse_next(input)?;
 
     Ok(id)
 }
 
-fn parse_video_id(input: &mut &str) -> ModalResult<YoutubeId> {
-    take_until(1.., '&')
-        .map(|s: &str| YoutubeId(s.to_string()))
+fn parse_raw_id(input: &mut &str) -> winnow::Result<YoutubeId> {
+    take_while(1.., |c: char| c.is_alphanumeric())
+        .map(|id: &str| YoutubeId(id.to_string()))
         .parse_next(input)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_youtube_id() {
+        let cases = vec![
+            ("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "dQw4w9WgXcQ"),
+            ("http://youtube.com/embed/dQw4w9WgXcQ", "dQw4w9WgXcQ"),
+            ("https://youtu.be/dQw4w9WgXcQ", "dQw4w9WgXcQ"),
+            (
+                "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley",
+                "dQw4w9WgXcQ",
+            ),
+        ];
+
+        for (input, expected_id) in cases {
+            let parsed_id = YoutubeId::parse(input).unwrap();
+            assert_eq!(parsed_id.as_str(), expected_id);
+        }
+    }
 }

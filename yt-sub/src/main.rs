@@ -1,7 +1,7 @@
+use crate::youtube_id::YoutubeId;
 use anyhow::{Result, anyhow};
-use clap::Parser;
+use clap::*;
 use std::collections::HashSet;
-use std::process;
 use yt_transcript_rs::YouTubeTranscriptApi;
 
 mod youtube_id;
@@ -10,7 +10,6 @@ mod youtube_id;
 #[command(version, about)]
 struct Args {
     /// The URL of the YouTube video
-    #[arg(short, long)]
     url: String,
 }
 
@@ -18,24 +17,30 @@ struct Args {
 async fn main() -> Result<()> {
     let args = Args::parse();
 
-    println!("URL: {}", args.url);
+    let video_id = YoutubeId::parse(&args.url)?;
+    let transcript = fetch_transcript(&video_id).await?;
+
+    println!("{}", transcript);
 
     Ok(())
 }
 
-async fn fetch_transcript(video_id: &str) -> Result<String> {
+async fn fetch_transcript(video_id: &YoutubeId) -> Result<String> {
     // Create API instance
     let api = YouTubeTranscriptApi::new(None, None, None)?;
 
     // Try to fetch transcript with English language preference
-    match api.fetch_transcript(video_id, &["en"], false).await {
+    match api
+        .fetch_transcript(video_id.as_str(), &["en"], false)
+        .await
+    {
         Ok(transcript) => {
             // Clean up the transcript (equivalent to the awk script)
             Ok(clean_transcript(&transcript.text()))
         }
         Err(_) => {
             // If English fails, try without language preference
-            match api.fetch_transcript(video_id, &[], false).await {
+            match api.fetch_transcript(video_id.as_str(), &[], false).await {
                 Ok(transcript) => Ok(clean_transcript(&transcript.text())),
                 Err(e) => Err(anyhow!("No subtitles found for this video: {}", e)),
             }
