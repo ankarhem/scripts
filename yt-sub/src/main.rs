@@ -10,6 +10,10 @@ mod youtube_id;
 struct Args {
     /// The URL of the YouTube video
     url: String,
+
+    /// The language code for the transcript (e.g., en, es, fr, de)
+    #[arg(short, long, default_value = "en")]
+    lang: String,
 }
 
 #[tokio::main]
@@ -24,7 +28,7 @@ async fn main() {
         }
     };
 
-    let transcript = match fetch_transcript(&video_id).await {
+    let transcript = match fetch_transcript(&video_id, &args.lang).await {
         Ok(t) => t,
         Err(e) => {
             eprintln!("Error fetching transcript: {}", e);
@@ -36,9 +40,9 @@ async fn main() {
     print!("{}", transcript);
 }
 
-async fn fetch_transcript(video_id: &YoutubeId) -> Result<String> {
+async fn fetch_transcript(video_id: &YoutubeId, lang: &str) -> Result<String> {
     let api = YouTubeTranscriptApi::new(None, None, None)?;
-    let languages = &["en"];
+    let languages = &[lang];
     let transcript = api
         .fetch_transcript(video_id.as_str(), languages, false)
         .await?;
