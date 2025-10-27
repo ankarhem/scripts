@@ -1,0 +1,3 @@
+/.direnv/
+.idea/
+.pre-commit-config.yaml
