@@ -4,11 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anthropic_api = { path = "../anthropic_api" }
 anyhow = { workspace = true }
 clap = { workspace = true }
 clap-stdin = "0.8.0"
-dirs = { workspace = true }
-reqwest = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
 tokio = { workspace = true }

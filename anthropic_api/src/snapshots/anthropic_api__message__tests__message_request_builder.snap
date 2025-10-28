@@ -1,0 +1,18 @@
+---
+source: anthropic_api/src/message.rs
+expression: request
+---
+{
+  "model": "glm-4.6",
+  "max_tokens": 256,
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello"
+    }
+  ]
+}

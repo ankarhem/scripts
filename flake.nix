@@ -106,6 +106,7 @@
               cargo-deny
               cargo-edit
               cargo-watch
+              cargo-insta
               rust-analyzer
             ];
 

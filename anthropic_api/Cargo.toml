@@ -1,0 +1,13 @@
+[package]
+name = "anthropic_api"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = { workspace = true }
+dirs = { workspace = true }
+insta = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+typed-builder = "0.23.0"
