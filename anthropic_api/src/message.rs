@@ -4,8 +4,8 @@ use typed_builder::TypedBuilder;
 #[derive(serde::Serialize, serde::Deserialize, TypedBuilder)]
 #[serde(rename_all = "snake_case")]
 pub struct MessageRequest {
-    #[builder(default)]
-    pub model: Option<String>,
+    #[builder(default = "claude-sonnet-4-5".to_string())]
+    pub model: String,
     #[builder(default = 1024)]
     pub max_tokens: u32,
     #[builder(default = Messages::new())]
@@ -94,7 +94,7 @@ mod tests {
     fn test_message_request_builder() {
         let messages = Messages::new().add_user("Hello").add_assistant("Hello");
         let request = MessageRequest::builder()
-            .model(Some("glm-4.6".parse().unwrap()))
+            .model("glm-4.6".into())
             .max_tokens(256)
             .messages(messages)
             .build();

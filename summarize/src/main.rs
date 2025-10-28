@@ -32,9 +32,15 @@ async fn run() -> Result<()> {
     }
 
     let anthropic_config = AnthropicConfig::builder().with_defaults()?.build()?;
-    let client = AnthropicClient::new(anthropic_config)?;
+    let client = AnthropicClient::new(anthropic_config.base_url(), anthropic_config.auth_token())?;
 
-    let response = summarize_text(&client, text, args.command.as_deref()).await?;
+    let response = summarize_text(
+        &client,
+        anthropic_config.model(),
+        text,
+        args.command.as_deref(),
+    )
+    .await?;
     match response.content.first() {
         Some(content) => {
             println!("{}", content.text.trim());
@@ -49,6 +55,7 @@ async fn run() -> Result<()> {
 
 async fn summarize_text(
     client: &AnthropicClient,
+    model: &str,
     text: &str,
     custom_command: Option<&str>,
 ) -> Result<MessageResponse> {
@@ -59,6 +66,7 @@ async fn summarize_text(
     };
 
     let message_request = anthropic_api::message::MessageRequest::builder()
+        .model(model.to_string())
         .build()
         .add_user(prompt)
         .add_user(text);
