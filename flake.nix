@@ -75,12 +75,14 @@
     {
       packages = forEachSupportedSystem (
         { pkgs, naerskLib, ... }:
-        rec {
+        {
           yt-sub = naerskLib.buildPackage {
             pname = "yt-sub";
             src = ./.;
-            buildInputs = with pkgs; [ ];
-            nativeBuildInputs = with pkgs; [ ];
+          };
+          summarize = naerskLib.buildPackage {
+            pname = "summarize";
+            src = ./.;
           };
         }
       );
