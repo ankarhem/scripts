@@ -12,7 +12,7 @@
   };
 
   outputs =
-    inputs:
+    inputs@{ nixpkgs, ... }:
     let
       supportedSystems = [
         "x86_64-linux"
@@ -22,10 +22,10 @@
       ];
       forEachSupportedSystem =
         f:
-        inputs.nixpkgs.lib.genAttrs supportedSystems (
+        nixpkgs.lib.genAttrs supportedSystems (
           system:
           f rec {
-            pkgs = import inputs.nixpkgs {
+            pkgs = import nixpkgs {
               inherit system;
               overlays = [
                 (import inputs.rust-overlay)
@@ -71,6 +71,8 @@
             };
           }
         );
+
+      modules = import ./modules { lib = nixpkgs.lib; };
     in
     {
       packages = forEachSupportedSystem (
@@ -123,5 +125,8 @@
           };
         }
       );
+
+      nixosModules.default = import ./modules/nixos.nix;
+      homeManagerModules.default = import ./modules/home.nix;
     };
 }
