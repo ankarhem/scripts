@@ -12,7 +12,7 @@
   };
 
   outputs =
-    inputs@{ nixpkgs, ... }:
+    inputs@{ self, nixpkgs, ... }:
     let
       supportedSystems = [
         "x86_64-linux"
@@ -126,7 +126,7 @@
         }
       );
 
-      nixosModules.default = import ./modules/nixos.nix;
-      homeManagerModules.default = import ./modules/home.nix;
+      nixosModules.default = import ./modules/nixos.nix { packages = self.packages; };
+      homeManagerModules.default = import ./modules/home.nix { packages = self.packages; };
     };
 }

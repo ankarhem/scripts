@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  packages,
   pkgs,
   ...
 }:
@@ -25,7 +26,10 @@ in
 {
   options.programs.summarize = {
     enable = lib.mkEnableOption "summarize";
-    package = lib.mkPackageOption pkgs "summarize" { };
+    package = lib.mkOption {
+      type = lib.types.package;
+      default = packages.${pkgs.system}.summarize;
+    };
     environmentsFile = lib.mkOption {
       type = lib.types.nullOr lib.types.path;
       default = null;
